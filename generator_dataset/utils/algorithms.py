@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 def bresenham_line(start=(10, 10), end=(10, 60)):
     """
@@ -72,3 +73,66 @@ def bresenham_line(start=(10, 10), end=(10, 60)):
             error += dx
 
     return points
+
+def generate_parallel_or_perpendicular_lines(image_shape, num_lines=2):
+    """
+    Generate a specified number of parallel or perpendicular lines within an image.
+
+    Parameters:
+    image_shape (tuple): Shape of the image (height, width).
+    num_lines (int): Number of lines to generate.
+
+    Returns:
+    list: A list of lines, where each line is represented as a list of points.
+    """
+    lines = []
+    for _ in range(num_lines):
+        # Choose a random orientation (horizontal, vertical, or diagonal)
+        orientation = np.random.choice(['horizontal', 'vertical', 'diagonal'])
+        
+        # Generate pseudo-random start and end points
+        if orientation == 'horizontal':
+            y = np.random.randint(0, image_shape[0])  # Fix Y, random in X
+            start = (0, y)
+            end = (image_shape[1], y)
+        elif orientation == 'vertical':
+            x = np.random.randint(0, image_shape[1])  # Fix X, random in Y
+            start = (x, 0)
+            end = (x, image_shape[0])
+        else:  # Diagonal
+            x_start = np.random.randint(0, image_shape[1] // 2)
+            y_start = np.random.randint(0, image_shape[0] // 2)
+            start = (x_start, y_start)
+            end = (image_shape[1] - x_start, image_shape[0] - y_start)
+        
+        # Add the generated line
+        line = bresenham_line(start=start, end=end)
+        lines.append(line)
+    
+    return lines
+
+def perlin_noise(shape=(512,512,3), min_inc=-1.0, max_exc=1.0, octaves=(0.25,0.25,0.25,0.25), dtype=np.float32):
+    """
+    Generates Perlin noise or fractal noise.
+    
+    Parameters:
+    shape (tuple): Shape of the output array (h, w, c) or (h, w).
+    min_inc (float): Minimum value for each octave.
+    max_exc (float): Maximum value for each octave.
+    octaves (tuple): Amplitude of each octave. The first octave has the highest resolution, 
+                     subsequent octaves have half the resolution of the previous octave.
+    dtype (data-type): Desired data-type for the output array.
+    
+    Returns:
+    np.array: Array of shape `shape` containing the fractal noise.
+    """
+    noises = []
+    h, w = shape[:2]
+    
+    for i, octave in enumerate(octaves):
+        noise_shape = (h // (1 << i), w // (1 << i)) + shape[2:]
+        noise = np.random.uniform(low=min_inc, high=max_exc, size=noise_shape) * octave
+        noise = cv2.resize(noise, (w, h), interpolation=cv2.INTER_LINEAR)
+        noises.append(noise)
+    
+    return np.sum(noises, axis=0).astype(dtype)
