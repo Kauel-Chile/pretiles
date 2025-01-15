@@ -28,7 +28,7 @@
 ```sh
   az container create \
      --resource-group cloudpointscontainerregistry \
-     --name mosquitto \
+     --name cloud_point_subsampling \
      --image cloudpointscontainerregistry.azurecr.io/service_subsampling \
      --ports 8000 \
      --cpu 1 \
