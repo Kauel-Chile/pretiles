@@ -27,8 +27,8 @@
 
 ```sh
   az container create \
-     --resource-group cloudpointscontainerregistry \
-     --name cloud_point_subsampling \
+     --resource-group cloudpoints-frontend_group \
+     --name subsampling \
      --image cloudpointscontainerregistry.azurecr.io/service_subsampling \
      --ports 8000 \
      --cpu 1 \
