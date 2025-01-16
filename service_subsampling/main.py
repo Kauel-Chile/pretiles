@@ -30,14 +30,10 @@ async def upload_file(file: UploadFile = File(...), factor: int = 10):
 
     # Call the subsample_point_cloud function
     subsample_point_cloud(temp_input_file, temp_output_file_las, factor)
-    
     run_potree_converter(temp_output_file_las, temp_output_file)
-    
     zip_folder(temp_output_file, temp_output_zip)
-    
-    print(connection_string, container_name)
     upload_to_blob_storage(connection_string, container_name, temp_output_zip, f"potree_{file.filename[:-4]}.zip")
-    
+
     shutil.rmtree("tmp")
     os.makedirs("tmp")
     
