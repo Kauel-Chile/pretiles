@@ -16,10 +16,7 @@ def subsample_point_cloud(input_file, output_file, factor=10):
         reduced_points = points[random_indices]
 
         # Create a new LasData object with the same header as the original
-        reduced_las = laspy.LasData(header=las_data.header)
-        
-        # Assign the reduced points to the new LasData object
-        reduced_las.points = reduced_points.copy()  # Ensure it's a copy to avoid memory issues
+        reduced_las = laspy.LasData(header=las_data.header, points=reduced_points)
         
         # Write the reduced point cloud to a new LAS file
         reduced_las.write(output_file)
