@@ -174,3 +174,4 @@ cython_debug/
 generator_dataset/dataset/
 generator_dataset/dataset.zip
 ia/dataset.zip
+data/
