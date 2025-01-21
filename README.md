@@ -16,10 +16,11 @@ To DO
 - [x] crear el ciclo de iteracion cargando el zip en ram
 - [x] crear arquitectura unet (5 niveles)
 - [x] eval ciclo
-- [ ] sumar flip h y v
-- [ ] metricas f1_score
-- [ ] graficas loss y metricas
-- [ ] imgen debe ser int8 y no float
+- [x] sumar flip h y v
+- [x] metricas f1_score
+- [x] graficas de losses
+- [ ] iterar dataset artificial
+- [ ] grafica de metricas
 - [ ] clases para sanjas
 - [ ] post procesamiento para detectar el ancho y alto
 - [ ] ancho y alto de pretiles que no estan en normal
