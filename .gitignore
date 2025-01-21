@@ -173,5 +173,6 @@ cython_debug/
 # Ignore datasets
 generator_dataset/dataset/
 generator_dataset/dataset.zip
-ia/dataset.zip
+ia/data/
+ia/testing/
 data/

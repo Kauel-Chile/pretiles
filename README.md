@@ -10,15 +10,17 @@ Proyecto de medicion de pretiles con ia
 
 
 To DO
-- [] mascara de pixeles validos en la nube de puntos
-- [] pixeles invalidos deben ser completados con el valor medio
-- [] imagen normalizada (restando el valor medio antes de procesar con la red)
-- [] imgen debe ser int8 y no float
-- [X] crear el ciclo de iteracion cargando el zip en ram
-- [X] crear arquitectura unet (5 niveles)
-- [] metricas f1_score
-- [] eval ciclo
-- [] clases para sanjas
-- [] post procesamiento para detectar el ancho y alto
-- [] ancho y alto de pretiles que no estan en normal
-- [] probar con imagenes reales
+- [x] mascara de pixeles validos en la nube de puntos
+- [x] pixeles invalidos deben ser completados con el valor medio
+- [x] imagen normalizada (restando el valor medio antes de procesar con la red)
+- [x] crear el ciclo de iteracion cargando el zip en ram
+- [x] crear arquitectura unet (5 niveles)
+- [x] eval ciclo
+- [ ] sumar flip h y v
+- [ ] metricas f1_score
+- [ ] graficas loss y metricas
+- [ ] imgen debe ser int8 y no float
+- [ ] clases para sanjas
+- [ ] post procesamiento para detectar el ancho y alto
+- [ ] ancho y alto de pretiles que no estan en normal
+- [x] probar con imagenes reales
