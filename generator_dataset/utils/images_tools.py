@@ -33,13 +33,14 @@ def gaussian_kernel(size=5, dtype=np.float32, normalize=False):
     --------
     kernel = gaussian_kernel(size=7, normalize=True)
     """
+    eps = 1e-8
     sigma = size / 5.0
     ax = np.linspace(-(size - 1) / 2., (size - 1) / 2., size)
     xx, yy = np.meshgrid(ax, ax)
-    kernel = np.exp(-0.5 * (np.square(xx) + np.square(yy)) / np.square(sigma))
+    kernel = np.exp(-0.5 * (np.square(xx) + np.square(yy)) / (np.square(sigma) + eps))
     
     if normalize:
-        kernel /= np.sum(kernel)
+        kernel /= (np.max(kernel) + eps)
     
     return kernel.astype(dtype)
 
