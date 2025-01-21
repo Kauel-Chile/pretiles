@@ -13,6 +13,7 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
     :param threshold_down, threshold_up: Thresholds to consider valid distances.
     :return: Interpolated value for each point in the grid.
     """
+    mean_z = np.mean(z)
     tree = cKDTree(np.column_stack((x, y)))
     
     z_interp = np.zeros(grid_x.shape)
@@ -26,7 +27,7 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
             valid_indices = indices[valid_mask]
             
             if len(valid_distances) == 0:
-                z_interp[i, j] = 0
+                z_interp[i, j] = mean_z
             else:
                 weights = 1 / ((valid_distances ** power) + epsilon)
                 z_interp[i, j] = np.sum(weights * z[valid_indices]) / (np.sum(weights) + epsilon)
