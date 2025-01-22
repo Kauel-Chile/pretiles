@@ -176,3 +176,4 @@ generator_dataset/dataset.zip
 ia/data/
 ia/testing/
 data/
+weights/*
