@@ -175,5 +175,5 @@ generator_dataset/dataset/
 generator_dataset/dataset.zip
 ia/data/
 ia/testing/
+ia/weigths/
 data/
-weights/*
