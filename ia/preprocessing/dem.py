@@ -17,6 +17,7 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
     tree = cKDTree(np.column_stack((x, y)))
     
     z_interp = np.zeros(grid_x.shape)
+    mask = np.ones(grid_x.shape)
     for i in range(grid_x.shape[0]):
         for j in range(grid_x.shape[1]):
             point = np.array([grid_x[i, j], grid_y[i, j]])
@@ -28,11 +29,12 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
             
             if len(valid_distances) == 0:
                 z_interp[i, j] = mean_z
+                mask[i, j] = 0
             else:
                 weights = 1 / ((valid_distances ** power) + epsilon)
                 z_interp[i, j] = np.sum(weights * z[valid_indices]) / (np.sum(weights) + epsilon)
     
-    return z_interp
+    return z_interp, mask
 
 
 def create_digital_elevation_model(x, y, z, size_img=512, threshold_down=-7, threshold_up=8, save_img=False):
@@ -47,7 +49,7 @@ def create_digital_elevation_model(x, y, z, size_img=512, threshold_down=-7, thr
     grid_x, grid_y = np.meshgrid(np.linspace(np.min(x), np.max(x), size_img), 
                                 np.linspace(np.min(y), np.max(y), size_img))
 
-    z_interp = idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up)
+    z_interp, mask = idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up)
 
     if save_img:
         # Define the transformation (define the origin and resolution of the DEM)
@@ -58,4 +60,4 @@ def create_digital_elevation_model(x, y, z, size_img=512, threshold_down=-7, thr
                            count=1, dtype=z_interp.dtype, crs='EPSG:4326', transform=transform) as dst:
             dst.write(z_interp, 1)
 
-    return z_interp
+    return z_interp, mask
