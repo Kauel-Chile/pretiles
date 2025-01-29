@@ -21,7 +21,8 @@ To DO
 - [x] graficas de losses
 - [x] iterar dataset artificial
 - [x] probar con imagenes reales
+- [x] clases para zanjas en el generador del dataset
+- [ ] metricas con la clase zanja
 - [ ] alinear los ejes de las nubes de puntos antes de generar los dem
-- [ ] clases para sanjas
 - [ ] post procesamiento para detectar el ancho y alto
 - [ ] ancho y alto de pretiles que no estan en normal
