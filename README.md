@@ -19,9 +19,9 @@ To DO
 - [x] sumar flip h y v
 - [x] metricas f1_score
 - [x] graficas de losses
-- [ ] iterar dataset artificial
-- [ ] grafica de metricas
+- [x] iterar dataset artificial
+- [x] probar con imagenes reales
+- [ ] alinear los ejes de las nubes de puntos antes de generar los dem
 - [ ] clases para sanjas
 - [ ] post procesamiento para detectar el ancho y alto
 - [ ] ancho y alto de pretiles que no estan en normal
-- [x] probar con imagenes reales
