@@ -27,8 +27,9 @@ def bresenham_line(start=(10, 10), end=(10, 60)):
     """
 
     # Unpack start and end points
-    x1, y1 = start
-    x2, y2 = end
+    x1, y1 = np.array(start, dtype=np.int32).copy()
+    x2, y2 = np.array(end, dtype=np.int32).copy()
+
 
     # Calculate differences
     dx = x2 - x1
@@ -155,6 +156,32 @@ def generate_parallel_lines_adjacent(image_shape):
         lines.append(parallel_line)
 
     return lines
+
+def generate_parallel_lines_adjacent(image_shape):
+    lines = []
+    distance = 20  # Distance between parallel lines
+
+    start = (np.random.randint(0, image_shape[0] // 2), np.random.randint(0, image_shape[1] // 2))
+    end =   (np.random.randint(image_shape[0] // 2, image_shape[0]-1), np.random.randint(image_shape[1] // 2, image_shape[1]-1))
+    line_direction = np.array(end, dtype=np.float32) - np.array(start, dtype=np.float32) 
+    line_direction_norm = line_direction / np.linalg.norm(line_direction) 
+    line_per = np.array((line_direction_norm[1], -line_direction_norm[0]))
+    line_per = line_per / np.linalg.norm(line_per)
+
+    for i in range(3):
+        p1 = start + line_per * i * distance
+        p2 = p1 + line_direction
+        p1[0] = np.clip(p1[0], 0, image_shape[0] - 1)
+        p1[1] = np.clip(p1[1], 0, image_shape[1] - 1)
+        p2[0] = np.clip(p2[0], 0, image_shape[0] - 1)
+        p2[1] = np.clip(p2[1], 0, image_shape[1] - 1)
+
+        # Generate the line using Bresenham's line algorithm
+        parallel_line = list(bresenham_line(p1, p2))
+        lines.append(parallel_line)
+
+    return lines
+
 
 def perlin_noise(shape=(512,512,3), min_inc=-1.0, max_exc=1.0, octaves=(0.25,0.25,0.25,0.25), dtype=np.float32):
     """
