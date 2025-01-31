@@ -37,23 +37,30 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
     return z_interp, mask
 
 
-def create_digital_elevation_model(x, y, z, size_img=512, threshold_down=-7, threshold_up=8, save_img=False):
+def create_digital_elevation_model(x, y, z, save_img=False):
     """
     Create a Digital Elevation Model (DEM)
     :param x, y, z: Coordinates and values of the point cloud.
-    :param size_img: Size of the output image (default is 512).
-    :param threshold_down, threshold_up: Thresholds to consider valid distances.
     :param save_img: Boolean flag to save the DEM as an image file (default is False).
     :return: Interpolated DEM as a numpy array.
     """
-    grid_x, grid_y = np.meshgrid(np.linspace(np.min(x), np.max(x), size_img), 
-                                np.linspace(np.min(y), np.max(y), size_img))
+    x = x - np.mean(x)
+    y = y - np.mean(y)
+    z = z - np.mean(z)
+    
+    w = int(np.ceil(np.max(x) - np.min(x)) * 4)
+    h = int(np.ceil(np.max(y) - np.min(y)) * 4)
+    img_size = int(h) if h > w else int(w)
+    z_min, z_max = np.min(z), np.max(z)
 
-    z_interp, mask = idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up)
+    grid_x, grid_y = np.meshgrid(np.linspace(np.min(x), np.max(x), w), 
+                                np.linspace(np.min(y), np.max(y), h))
+
+    z_interp, mask = idw_interpolation(x, y, z, grid_x, grid_y, z_min, z_max)
 
     if save_img:
         # Define the transformation (define the origin and resolution of the DEM)
-        transform = from_origin(np.min(x), np.max(y), (np.max(x) - np.min(x)) / size_img, (np.max(y) - np.min(y)) / size_img)
+        transform = from_origin(np.min(x), np.max(y), (np.max(x) - np.min(x)) / w, (np.max(y) - np.min(y)) / h)
 
         # Save the DEM as a GeoTIFF file
         with rasterio.open('dem.tif', 'w', driver='GTiff', height=z_interp.shape[0], width=z_interp.shape[1],
