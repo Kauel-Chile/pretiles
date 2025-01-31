@@ -38,19 +38,13 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
 
 
 def create_digital_elevation_model(x, y, z, save_img=False):
-    """
-    Create a Digital Elevation Model (DEM)
-    :param x, y, z: Coordinates and values of the point cloud.
-    :param save_img: Boolean flag to save the DEM as an image file (default is False).
-    :return: Interpolated DEM as a numpy array.
-    """
+    
     x = x - np.mean(x)
     y = y - np.mean(y)
     z = z - np.mean(z)
     
     w = int(np.ceil(np.max(x) - np.min(x)) * 4)
     h = int(np.ceil(np.max(y) - np.min(y)) * 4)
-    img_size = int(h) if h > w else int(w)
     z_min, z_max = np.min(z), np.max(z)
 
     grid_x, grid_y = np.meshgrid(np.linspace(np.min(x), np.max(x), w), 
