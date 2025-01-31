@@ -157,9 +157,9 @@ def generate_parallel_lines_adjacent(image_shape):
 
     return lines
 
-def generate_parallel_lines_adjacent(image_shape):
+def generate_parallel_lines_adjacent(image_shape, gsd):
     lines = []
-    distance = 20  # Distance between parallel lines
+    distance = 0.4 / gsd  # Distance between parallel lines
 
     start = (np.random.randint(0, image_shape[0] // 2), np.random.randint(0, image_shape[1] // 2))
     end =   (np.random.randint(image_shape[0] // 2, image_shape[0]-1), np.random.randint(image_shape[1] // 2, image_shape[1]-1))
