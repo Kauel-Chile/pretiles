@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-def bresenham_line(start=(10, 10), end=(10, 60)):
+def bresenham_line(start=(10, 10), end=(10, 60), gsd=0.25):
     """
     Generate a list of points using Bresenham's Line Algorithm.
 
@@ -73,6 +73,8 @@ def bresenham_line(start=(10, 10), end=(10, 60)):
             y += ystep
             error += dx
 
+    if len(points) < 1/gsd: 
+       return None
     return points
 
 def generate_parallel_or_perpendicular_lines(image_shape, num_lines=2):
@@ -108,7 +110,8 @@ def generate_parallel_or_perpendicular_lines(image_shape, num_lines=2):
 
         # Add the generated line
         line = bresenham_line(start=start, end=end)
-        lines.append(line)
+        if line:
+            lines.append(line)
 
     return lines
 
@@ -152,14 +155,14 @@ def generate_parallel_lines_adjacent(image_shape):
 
 
         # Generate the line using Bresenham's line algorithm
-        parallel_line = list(bresenham_line(start, end))
-        lines.append(parallel_line)
+        parallel_line = bresenham_line(start, end)
+        if parallel_line:
+            lines.append(parallel_line)
 
     return lines
 
 def generate_parallel_lines_adjacent(image_shape, gsd):
     lines = []
-    distance = 0.4 / gsd  # Distance between parallel lines
 
     start = (np.random.randint(0, image_shape[0] // 2), np.random.randint(0, image_shape[1] // 2))
     end =   (np.random.randint(image_shape[0] // 2, image_shape[0]-1), np.random.randint(image_shape[1] // 2, image_shape[1]-1))
@@ -169,7 +172,11 @@ def generate_parallel_lines_adjacent(image_shape, gsd):
     line_per = line_per / np.linalg.norm(line_per)
 
     for i in range(3):
-        p1 = start + line_per * i * distance
+        if i == 2 :
+            p1 = start + line_per * i * (2.2 / gsd)
+        else: 
+            p1 = start + line_per * i * (1.4 / gsd)
+
         p2 = p1 + line_direction
         p1[0] = np.clip(p1[0], 0, image_shape[0] - 1)
         p1[1] = np.clip(p1[1], 0, image_shape[1] - 1)
