@@ -124,52 +124,6 @@ def generate_parallel_or_perpendicular_lines(image_shape, num_lines=2):
 
     return lines, lens
 
-# def generate_parallel_lines_adjacent(image_shape):
-#     """
-#     Generates parallel lines of a specified orientation in an image.
-
-#     Parameters:
-#     image_shape (tuple): The shape of the image (height, width).
-
-#     Returns:
-#     list: A list of lists, where each inner list represents a parallel line.
-#     """
-#     lines = []
-#     orientation = np.random.choice(['horizontal', 'vertical', 'diagonal'])
-#     distance = 50  # Distance between parallel lines
-
-#     # Random starting points for different orientations
-#     x = np.random.randint(0, image_shape[1])
-#     y = np.random.randint(0, image_shape[0])
-#     x_start = np.random.randint(0, image_shape[1] // 2)
-#     y_start = np.random.randint(0, image_shape[0] // 2)
-
-#     for i in range(3):
-#         if orientation == 'horizontal':
-#             y_offset = i * distance
-#             start = (0, y + y_offset)
-#             end = (image_shape[1], y + y_offset)
-#         elif orientation == 'vertical':
-#             x_offset = i * distance
-#             start = (x + x_offset, 0)
-#             end = (x + x_offset, image_shape[0])
-#         else:  # Diagonal
-#             x_offset = i * distance
-#             y_offset = i * distance
-#             start = (x_start + x_offset, y_start + y_offset)
-#             end = (image_shape[1] - x_start + x_offset, image_shape[0] - y_start + y_offset)
-
-#         start = (max(0, min(start[0], image_shape[1] - 1)), max(0, min(start[1], image_shape[0] - 1)))
-#         end = (max(0, min(end[0], image_shape[1] - 1)), max(0, min(end[1], image_shape[0] - 1)))
-
-
-#         # Generate the line using Bresenham's line algorithm
-#         parallel_line = bresenham_line(start, end)
-#         if parallel_line:
-#             lines.append(parallel_line)
-
-#     return lines
-
 def generate_parallel_lines_adjacent(image_shape, gsd):
     lines = []
     lens = []
