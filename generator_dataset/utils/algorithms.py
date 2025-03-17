@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import random
 
 def bresenham_line(start=(10, 10), end=(10, 60), gsd=0.25):
     """
@@ -179,17 +180,15 @@ def generate_parallel_lines_adjacent(image_shape, gsd):
     start = (x, y)
     end = (x2, y2)
 
+    distance  = random.uniform(1.0, 3.0) / gsd 
+
     line_direction = np.array(end, dtype=np.float32) - np.array(start, dtype=np.float32) 
     line_direction_norm = line_direction / np.linalg.norm(line_direction) 
     line_per = np.array((line_direction_norm[1], -line_direction_norm[0]))
     line_per = line_per / np.linalg.norm(line_per)
 
     for i in range(3):
-        if i == 2 :
-            p1 = start + line_per * i * (2.2 / gsd)
-        else: 
-            p1 = start + line_per * i * (1.4 / gsd)
-
+        p1 = start + line_per * i * distance
         p2 = p1 + line_direction
         p1[0] = np.clip(p1[0], 0, image_shape[0] - 1)
         p1[1] = np.clip(p1[1], 0, image_shape[1] - 1)
@@ -205,7 +204,7 @@ def generate_parallel_lines_adjacent(image_shape, gsd):
         lens.append(length)
 
 
-    return lines, lens
+    return lines, lens , distance
 
 
 def perlin_noise(shape=(512,512,3), min_inc=-1.0, max_exc=1.0, octaves=(0.25,0.25,0.25,0.25), dtype=np.float32):
