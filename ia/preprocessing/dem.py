@@ -37,28 +37,39 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
     return z_interp, mask
 
 
-def create_digital_elevation_model(x, y, z, save_img=False):
+def create_digital_elevation_model(x, y, z):
+    # Calcular medias para deshacer el centrado después
+    x_mean = np.mean(x)
+    y_mean = np.mean(y)
+    z_mean = np.mean(z)
     
-    x = x - np.mean(x)
-    y = y - np.mean(y)
-    z = z - np.mean(z)
+    # Centrar coordenadas (mejora estabilidad numérica)
+    x_centered = x - x_mean
+    y_centered = y - y_mean
     
-    w = int(np.ceil(np.max(x) - np.min(x)) * 4)
-    h = int(np.ceil(np.max(y) - np.min(y)) * 4)
-    z_min, z_max = np.min(z), np.max(z)
+    # Calcular límites del grid en coordenadas centradas
+    x_min, x_max = np.min(x_centered), np.max(x_centered)
+    y_min, y_max = np.min(y_centered), np.max(y_centered)
+    
+    # Crear grid en coordenadas centradas
+    w = int(np.ceil((x_max - x_min) * 4))
+    h = int(np.ceil((y_max - y_min) * 4))
 
-    grid_x, grid_y = np.meshgrid(np.linspace(np.min(x), np.max(x), w), 
-                                np.linspace(np.min(y), np.max(y), h))
-
-    z_interp, mask = idw_interpolation(x, y, z, grid_x, grid_y, z_min, z_max)
-
-    if save_img:
-        # Define the transformation (define the origin and resolution of the DEM)
-        transform = from_origin(np.min(x), np.max(y), (np.max(x) - np.min(x)) / w, (np.max(y) - np.min(y)) / h)
-
-        # Save the DEM as a GeoTIFF file
-        with rasterio.open('dem.tif', 'w', driver='GTiff', height=z_interp.shape[0], width=z_interp.shape[1],
-                           count=1, dtype=z_interp.dtype, crs='EPSG:4326', transform=transform) as dst:
-            dst.write(z_interp, 1)
-
-    return z_interp, mask
+    grid_x_centered, grid_y_centered = np.meshgrid(
+        np.linspace(x_min, x_max, w),
+        np.linspace(y_min, y_max, h)
+    )
+    
+    # Interpolación IDW (usando z centrado)
+    z_interp, mask = idw_interpolation(
+        x_centered, y_centered, z - z_mean,
+        grid_x_centered, grid_y_centered,
+        np.min(z - z_mean), np.max(z - z_mean)
+    )
+    
+    return {
+        'dem': z_interp,
+        'mask': mask,
+        'grid_x': grid_x_centered + x_mean,  # Grid en coordenadas originales
+        'grid_y': grid_y_centered + y_mean,
+    }
