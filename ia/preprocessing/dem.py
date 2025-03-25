@@ -38,38 +38,31 @@ def idw_interpolation(x, y, z, grid_x, grid_y, threshold_down, threshold_up, pow
 
 
 def create_digital_elevation_model(x, y, z):
-    # Calcular medias para deshacer el centrado después
-    x_mean = np.mean(x)
-    y_mean = np.mean(y)
     z_mean = np.mean(z)
     
-    # Centrar coordenadas (mejora estabilidad numérica)
-    x_centered = x - x_mean
-    y_centered = y - y_mean
-    
     # Calcular límites del grid en coordenadas centradas
-    x_min, x_max = np.min(x_centered), np.max(x_centered)
-    y_min, y_max = np.min(y_centered), np.max(y_centered)
+    x_min, x_max = np.min(x), np.max(x)
+    y_min, y_max = np.min(y), np.max(y)
     
     # Crear grid en coordenadas centradas
     w = int(np.ceil((x_max - x_min) * 4))
     h = int(np.ceil((y_max - y_min) * 4))
 
-    grid_x_centered, grid_y_centered = np.meshgrid(
+    grid_x, grid_y = np.meshgrid(
         np.linspace(x_min, x_max, w),
         np.linspace(y_min, y_max, h)
     )
     
     # Interpolación IDW (usando z centrado)
     z_interp, mask = idw_interpolation(
-        x_centered, y_centered, z - z_mean,
-        grid_x_centered, grid_y_centered,
+        x, y, z - z_mean,
+        grid_x, grid_y,
         np.min(z - z_mean), np.max(z - z_mean)
     )
     
     return {
         'dem': z_interp,
         'mask': mask,
-        'grid_x': grid_x_centered + x_mean,  # Grid en coordenadas originales
-        'grid_y': grid_y_centered + y_mean,
+        'grid_x': grid_x,  # Grid en coordenadas originales
+        'grid_y': grid_y,
     }
