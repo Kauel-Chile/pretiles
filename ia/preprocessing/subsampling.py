@@ -1,7 +1,7 @@
 import laspy
 import numpy as np
 
-def subsample_point_cloud(input_file, factor=10):
+def subsample_point_cloud(input_file, factor=0.1):
     """
     Subsamples a point cloud from a LAS file by a given factor.
 
@@ -21,7 +21,7 @@ def subsample_point_cloud(input_file, factor=10):
         points = las_data.points
             
         # Randomly subsample the points
-        sample_size = int(len(points) * (factor / 100))
+        sample_size = int(len(points) * factor)
         random_indices = np.random.choice(len(points), sample_size, replace=False)
         reduced_points = points[random_indices]
 
