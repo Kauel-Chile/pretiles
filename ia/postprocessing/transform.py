@@ -1,6 +1,8 @@
 import cv2
+import pyproj
 import numpy as np 
 
+from collections import defaultdict
 from .distance import fast_thinning, calculate_angle, find_distance
 
 # Parámetros para detección de cambios de dirección
@@ -96,3 +98,76 @@ def get_segments(valid_components, labels):
     
     return segments
 
+def get_measurement(segments, binary_mask, img_pretil):
+    results = []
+
+    # Procesar cada segmento por separado
+    for segment_idx, segment in enumerate(segments):
+        num_points = segment.shape[0]
+         
+        # Procesar puntos en el segmento con ventanas deslizantes
+        for i in range(0, num_points - WINDOW_SIZE + 1, STEP_SIZE):
+            window = segment[i:i+WINDOW_SIZE]
+            x_win = window[:, 0]
+            y_win = window[:, 1]
+                
+            # Regresión lineal para dirección
+            try:
+                coeffs = np.polyfit(x_win, y_win, 1)
+                m = coeffs[0]
+                dx, dy = 1, m
+                length = np.hypot(dx, dy)
+                dir_x, dir_y = dx/length, dy/length
+            except:
+                # Fallback a puntos extremos
+                dx = x_win[-1] - x_win[0]
+                dy = y_win[-1] - y_win[0]
+                length = np.hypot(dx, dy)
+                if length == 0:
+                    continue
+                dir_x, dir_y = dx/length, dy/length
+                
+            # Direcciones perpendiculares
+            perp_up = (-dir_y, dir_x)
+            perp_down = (dir_y, -dir_x)
+                
+            # Punto medio de la ventana
+            mid_idx = i + WINDOW_SIZE // 2
+            x0, y0 = segment[mid_idx]
+                
+            # Calcular distancias
+            d_up = find_distance(x0, y0, perp_up, binary_mask)
+            d_down = find_distance(x0, y0, perp_down, binary_mask)
+            width = (d_up + d_down) * 0.25
+                
+            # Obtener altura del pretil
+            height = img_pretil[y0, x0]
+            results.append((x0, y0, segment_idx, width, height))
+    
+    return results
+
+def get_coords(data, dem_info):
+    result = defaultdict(list)
+    coords_19s = [(get_grid_values(dem_info, x, y), idx, w_pretil, h_pretil) for x, y, idx, w_pretil, h_pretil in data]
+    coords_wgs84 = [(transform_19s_wgs84(e, n), idx, w_pretil, h_pretil) for (e, n), idx, w_pretil, h_pretil in coords_19s]
+    for coords, idx, w, h in coords_wgs84:
+        result[idx].append((coords, w, h))
+    return result
+
+def get_grid_values(dem_info, w, h):
+    grid_x, grid_y = dem_info.get('grid_x'), dem_info.get('grid_y')
+    if not (0 <= w < grid_x.shape[1] and 0 <= h < grid_x.shape[0]):
+        raise IndexError("Las coordenadas (w, h) están fuera de los límites de las matrices.")
+    # Recuperar los valores de grid_x y grid_y en la posición (w, h)
+    value_x = grid_x[h, w]
+    value_y = grid_y[h, w]
+    return value_x, value_y
+
+def transform_19s_wgs84(coord_e, coord_n):
+    source_crs = f"EPSG:32719"  # 19s   
+    target_crs = "EPSG:4326"    # WGS84 for Google Maps
+    transformer = pyproj.Transformer.from_crs(
+        source_crs, target_crs, always_xy=True
+    )
+    lon, lat = transformer.transform(coord_e, coord_n)
+    return lat, lon
