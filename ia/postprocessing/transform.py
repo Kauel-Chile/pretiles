@@ -33,66 +33,68 @@ def get_componets(binary_img):
 
 def get_segments(valid_components, labels):
     segments = []
-    for component in valid_components:
+    for b, component in enumerate(valid_components):
         mask = (labels == component).astype(np.uint8)
         skeleton = fast_thinning(mask)
+        
+        # Verificar si el esqueleto está vacío
+        if np.sum(skeleton) == 0:
+            continue
             
-        # Obtener puntos ordenados del esqueleto
-        contours, _ = cv2.findContours(skeleton, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            
-        for contour in contours:
+        # Usar aproximación de contornos para reducir puntos redundantes
+        contours, _ = cv2.findContours(
+            skeleton, 
+            cv2.RETR_EXTERNAL, 
+            cv2.CHAIN_APPROX_TC89_L1  # Algoritmo eficiente de aproximación
+        )
+        
+        # Filtrar contornos pequeños inmediatamente
+        valid_contours = [c for c in contours if len(c) >= WINDOW_SIZE]
+        
+        for i, contour in enumerate(valid_contours):
             contour = contour.reshape(-1, 2)
             num_points = contour.shape[0]
-            if num_points < WINDOW_SIZE:
-                continue
-                
+            
             current_segment = []
             prev_direction = None
-                
+            
             # Procesar ventanas deslizantes
-            for i in range(0, num_points - WINDOW_SIZE + 1, STEP_SIZE):
-                window = contour[i:i+WINDOW_SIZE]
+            for j in range(0, num_points - WINDOW_SIZE + 1, STEP_SIZE):
+                window = contour[j:j+WINDOW_SIZE]
                 x_win = window[:, 0]
                 y_win = window[:, 1]
-                 
-                # Regresión lineal
+                
+                # Cálculo de dirección (regresión lineal o diferencia entre extremos)
                 try:
                     coeffs = np.polyfit(x_win, y_win, 1)
                     m = coeffs[0]
                     dx, dy = 1, m
-                    length = np.hypot(dx, dy)
-                    current_direction = (dx/length, dy/length)
                 except:
-                    # Fallback a puntos extremos
                     dx = x_win[-1] - x_win[0]
                     dy = y_win[-1] - y_win[0]
-                    length = np.hypot(dx, dy)
-                    if length == 0:
-                        continue
-                    current_direction = (dx/length, dy/length)
-                    
-                # Si es el primer punto del segmento
+                
+                length = np.hypot(dx, dy)
+                if length == 0:
+                    continue
+                current_direction = (dx/length, dy/length)
+                
+                # Manejar segmento actual
                 if not current_segment:
                     current_segment.extend(window.tolist())
                     prev_direction = current_direction
                     continue
-                 
-                # Calcular ángulo entre direcciones
+                
                 angle = calculate_angle(prev_direction, current_direction)
-                    
-                # Si el ángulo es menor que el umbral, continuamos el segmento actual
                 if angle < ANGLE_THRESHOLD:
-                    current_segment.extend(window[STEP_SIZE:].tolist())  # Evitar duplicados
-                    prev_direction = current_direction  # Actualizamos con la última dirección
+                    current_segment.extend(window[STEP_SIZE:].tolist())
+                    prev_direction = current_direction
                 else:
-                   # Si el segmento actual es suficientemente largo, lo guardamos
                     if len(current_segment) >= MIN_SEGMENT_LENGTH:
                         segments.append(np.array(current_segment))
-                    # Iniciamos nuevo segmento
                     current_segment = window.tolist()
                     prev_direction = current_direction
-                
-                # Añadir el último segmento si es válido
+            
+            # Añadir el último segmento del contorno
             if len(current_segment) >= MIN_SEGMENT_LENGTH:
                 segments.append(np.array(current_segment))
     
