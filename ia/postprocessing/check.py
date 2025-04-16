@@ -98,7 +98,6 @@ def check_coordinates_in_kmz(kmz_path, coordinates_dict, buffer_distance=0.0001)
     try:
         kml_obj = read_kmz(kmz_path)
         geometries = extract_geometries(kml_obj)
-        print(geometries)
         results = {}
         for key, coord in coordinates_dict.items():
             results[key] = check_coordinate(geometries, coord, buffer_distance)
@@ -114,7 +113,6 @@ def check_pretil(kmz_file, data):
     for key, values in data.items():
         point = {'point': values[0][0]}
         results = check_coordinates_in_kmz(kmz_file, point)
-        print(key,results)
         for _, is_inside in results.items():
             if is_inside:
                 keys.append(key)

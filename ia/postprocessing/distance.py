@@ -11,7 +11,6 @@ def fast_thinning(img):
         eroded = cv2.erode(img, element)
         skel = cv2.bitwise_or(skel, temp)
         img = eroded.copy()
-        print(f'count skeleton {count}')
         if cv2.countNonZero(img) == 0 or count > 100:
             break
     return skel
